@@ -4,7 +4,7 @@ Distributed database structure for the [crawler-engine](https://github.com/Biltu
 
 ### Usage
 
-Read the Documentation: [DOCS.md](DOCS.md)
+Read the Documentation in the repo's [Wiki](https://github.com/BiltuDas1/crawler-db/wiki)
 
 # References
 
