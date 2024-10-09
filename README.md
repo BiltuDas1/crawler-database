@@ -10,3 +10,4 @@ Read the Documentation in the repo's [Wiki](https://github.com/BiltuDas1/crawler
 
 - [Fast HTTP Library](https://github.com/valyala/fasthttp)
 - [Color Package](https://github.com/fatih/color)
+- [xxh3](https://github.com/zeebo/xxh3) of [xxhash](https://xxhash.com/)

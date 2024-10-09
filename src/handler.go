@@ -1,44 +1,51 @@
-package modules
+package db
 
 import (
-	"bytes"
+	"encoding/json"
 	"log"
+	"strconv"
 
-	color "github.com/fatih/color"
 	http "github.com/valyala/fasthttp"
 )
 
-var methodNotAllowed = []byte("<center><h1>405 Not Allowed</h1><hr /><p>crawler-db</p></center>")
-var unauthorized = []byte("<center><h1>401 Authorization Required</h1><hr /><p>crawler-db</p></center>")
-var failed = color.New(color.FgRed).SprintFunc()
-
-// Function to handle every http Request
+// Function to handle every http/https Request
 func Handler(ctx *http.RequestCtx) {
 	// If the HTTP method is non GET then throws an Exception
-	if !bytes.Equal(ctx.Method(), []byte("GET")) {
-		// Shows Error to the user side
-		ctx.SetStatusCode(405) // Method not allowed
-		ctx.SetContentType("text/html; charset=utf-8")
-		ctx.SetBody(methodNotAllowed)
+	if !ctx.IsGet() {
+		writeHTMLResp(ctx, StatusMethodNotAllowed, methodNotAllowed)
 		return
 	}
 
 	// If the request is asking for to choose the database according to the query
-	if bytes.Equal(ctx.URI().Path(), []byte("/v1/db/node/ip")) {
-		get_database(ctx)
+	if string(ctx.URI().Path()) == "/v1/db/node/ip" {
+		// If no hash parameter has been passed then show error to the client side
+		if !ctx.URI().QueryArgs().Has("hash") || len(ctx.URI().QueryArgs().Peek("hash")) == 0 {
+			writeJSONResp(ctx, StatusUnprocessableEntity, invalidInput)
+			return
+		}
+
+		hashString := string(ctx.URI().QueryArgs().Peek("hash"))
+		hash, err := strconv.ParseUint(hashString, 10, 64)
+		if err != nil {
+			writeJSONResp(ctx, StatusUnprocessableEntity, invalidInput)
+			return
+		}
+
+		ip, port := GetDatabase(hash)
+		resp, err := json.Marshal(Response{Result: true, Content: NodeDetails{IP: ip, Port: port}})
+
+		// If JSON parse failed
+		if err != nil {
+			writeHTMLResp(ctx, StatusInternalError, internalError)
+			log.Println(failedLog(err))
+			return
+		}
+
+		// Send response when process successful
+		writeJSONResp(ctx, StatusSuccessful, resp)
 		return
 	}
 
 	// Generic handler
-	ctx.SetStatusCode(401) // Unauthorized
-	ctx.SetContentType("text/html; charset=utf-8")
-	ctx.SetBody(unauthorized)
-}
-
-// Function to find the database
-func get_database(ctx *http.RequestCtx) {
-	_, err := ctx.WriteString("Access Granted")
-	if err != nil {
-		log.Fatalln(failed(err))
-	}
+	writeHTMLResp(ctx, StatusUnauthorized, unauthorized)
 }
