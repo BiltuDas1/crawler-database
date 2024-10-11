@@ -56,6 +56,9 @@ func InitializeDBList(filename string) {
 
 	file, err := os.ReadFile(filename)
 	if err != nil {
+		if _, docker := os.LookupEnv("RunInDocker"); docker {
+			log.Fatalln("\033[31mNo db.txt file found, Please create one and mount it into the /data directory\033[0m")
+		}
 		log.Fatalln(failedLog("No db.txt file found, Please create one in the same path where the main.go file located. For More information: https://github.com/BiltuDas1/crawler-db/wiki"))
 	}
 
@@ -76,7 +79,10 @@ func InitializeDBList(filename string) {
 			port, err := strconv.Atoi(ipList[1])
 
 			if err != nil {
-				log.Fatal(failedLog(err))
+				if _, docker := os.LookupEnv("RunInDocker"); docker {
+					log.Fatalln("\033[31m" + err.Error() + "\033[0m")
+				}
+				log.Fatalln(failedLog(err))
 			}
 
 			dbList[hash] = NodeDetails{IP: ipList[0], Port: uint16(port)}
@@ -96,10 +102,18 @@ func InitializeDBList(filename string) {
 		port, err := strconv.ParseUint(ipList[1], 10, 16)
 
 		if err != nil {
-			log.Fatal(failedLog(err))
+			if _, docker := os.LookupEnv("RunInDocker"); docker {
+				log.Fatalln("\033[31m" + err.Error() + "\033[0m")
+			}
+			log.Fatalln(failedLog(err))
 		}
 
 		dbList[hash] = NodeDetails{IP: ipList[0], Port: uint16(port)}
+	}
+
+	// Send a Warning if db.txt file is empty
+	if len(dbPositions) == 0 {
+		log.Println("Warn: db.txt file is empty")
 	}
 
 	// Sorting the Positions

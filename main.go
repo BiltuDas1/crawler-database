@@ -20,16 +20,26 @@ func main() {
 
 	listener, err := net.Listen("tcp4", ":"+os.Getenv("PORT"))
 	if err != nil {
-		log.Fatalf(failed("Error in net.Listen: ", err))
+		if _, docker := os.LookupEnv("RunInDocker"); docker {
+			log.Fatalln("\033[31mError in net.Listen: " + err.Error() + "\033[0m")
+		}
+		log.Fatalln(failed("Error in net.Listen: ", err))
 	}
 
 	// Start the server with default settings.
 	// Create Server instance for adjusting server settings.
 	//
 	// Serve returns on ln.Close() or error, so usually it blocks forever.
-	log.Println(success("Server is running on: ", listener.Addr()))
+	if _, docker := os.LookupEnv("RunInDocker"); docker {
+		log.Println("\033[32mServer is running on: " + listener.Addr().String() + "\033[0m")
+	} else {
+		log.Println(success("Server is running on: ", listener.Addr()))
+	}
 
 	if err := http.Serve(listener, db.Handler); err != nil {
-		log.Fatalf(failed("Error in Serve: ", err))
+		if _, docker := os.LookupEnv("RunInDocker"); docker {
+			log.Fatalln("\033[31mError in Serve: " + err.Error() + "\033[0m")
+		}
+		log.Fatalln(failed("Error in Serve: ", err))
 	}
 }
