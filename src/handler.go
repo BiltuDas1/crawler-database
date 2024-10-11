@@ -32,12 +32,22 @@ func Handler(ctx *http.RequestCtx) {
 		}
 
 		ip, port := GetDatabase(hash)
+		// If ip or port is null then show error to the user
+		if ip == "" || port == 0 {
+			resp, err := json.Marshal(Response{Result: false, Description: "No database connection established"})
+			if err != nil {
+				writeHTMLResp(ctx, StatusInternalError, internalError)
+				log.Println("GetDatabase() error: " + failedLog(err))
+			}
+			writeJSONResp(ctx, StatusSuccessful, resp)
+		}
+
 		resp, err := json.Marshal(Response{Result: true, Content: NodeDetails{IP: ip, Port: port}})
 
 		// If JSON parse failed
 		if err != nil {
 			writeHTMLResp(ctx, StatusInternalError, internalError)
-			log.Println(failedLog(err))
+			log.Println("GetDatabase() error: " + failedLog(err))
 			return
 		}
 
