@@ -28,8 +28,9 @@ jobs:
       - name: Login to docker Hub
         uses: docker/login-action@master
         with:
-          username: ${{ secrets.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Building & Publishing images
         uses: docker/build-push-action@master
@@ -37,4 +38,4 @@ jobs:
           context: .
           platforms: linux/386,linux/amd64,linux/arm/v7,linux/arm64/v8,linux/arm/v6
           push: true
-          tags: ghcr.io/${{ secrets.DOCKER_USER }}/crawler-db:${{ env.Version }}-${{ env.VersionType }},ghcr.io/${{ secrets.DOCKER_USER }}/crawler-db:latest
+          tags: ghcr.io/biltudas1/crawler-db:${{ env.Version }}-${{ env.VersionType }},ghcr.io/biltudas1/crawler-db:latest
