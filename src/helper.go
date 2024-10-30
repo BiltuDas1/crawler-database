@@ -1,7 +1,7 @@
 package db
 
 import (
-	color "github.com/fatih/color"
+	"github.com/fatih/color"
 	http "github.com/valyala/fasthttp"
 )
 

@@ -8,7 +8,7 @@ import (
 	http "github.com/valyala/fasthttp"
 )
 
-// Function to handle every http/https Request
+// Handler Function to handle every http/https Request
 func Handler(ctx *http.RequestCtx) {
 	// If the HTTP method is non GET then throws an Exception
 	if !ctx.IsGet() {
@@ -32,6 +32,8 @@ func Handler(ctx *http.RequestCtx) {
 		}
 
 		ip, port := GetDatabase(hash)
+		node := NodeDetails{IP: ip, Port: port}
+
 		// If ip or port is null then show error to the user
 		if ip == "" || port == 0 {
 			resp, err := json.Marshal(Response{Result: false, Description: "No database connection established"})
@@ -42,7 +44,7 @@ func Handler(ctx *http.RequestCtx) {
 			writeJSONResp(ctx, StatusSuccessful, resp)
 		}
 
-		resp, err := json.Marshal(Response{Result: true, Content: NodeDetails{IP: ip, Port: port}})
+		resp, err := json.Marshal(Response{Result: true, Content: node})
 
 		// If JSON parse failed
 		if err != nil {

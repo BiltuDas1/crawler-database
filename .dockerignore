@@ -43,4 +43,8 @@ LICENSE
 
 # Docker Files
 .dockerignore
+docker-compose.yml
 Dockerfile
+
+# Nginx Files
+nginx.conf

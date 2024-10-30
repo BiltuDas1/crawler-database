@@ -29,3 +29,9 @@ temp/
 
 # Databases list
 db.txt
+
+# Docker Compose
+docker-compose.yml
+
+# NGINX conf files
+nginx.conf
